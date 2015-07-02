@@ -134,12 +134,12 @@ public class FileBuilder {
     }
     
     /**
-     * 
-     * @param hashtags
-     * @param urls
-     * @param tweet
-     * @param stopWordsMap
-     * @param terms 
+     * This method extracts the terms from a give tweet
+     * @param hashtags A list that after the execution of this method will contain the hashtags of the tweet
+     * @param urls A list that after the execution of this method will contain the urls of the tweet
+     * @param tweet The tweet to be analyzed
+     * @param stopWordsMap A hash map that after the execution of this method will contain the stop words of the tweet
+     * @param terms A map that after the execution of this method will contain the terms of the tweet
      */
     public static void extractTermsFromTweet(List<String> hashtags, List<String> urls, String tweet, HashMap<String, Integer> stopWordsMap, Map<String, Integer> terms) {
         
@@ -174,6 +174,18 @@ public class FileBuilder {
         }
     } 
     
+    /**
+     * This method collects the hashtags/tweets/terms for a given theme from the corresponding DBs
+     * @param choice 1 for tweets, 2 for hashtags, 3 for terms
+     * @param theme The theme for which we want to extract the hashtags/tweets/terms
+     * @param tf The timeframe in which we want to extract the needed information
+     * @param graphDB A handler for the Neo4j DB
+     * @param lucR A handler for the LuceneDB
+     * @param type The type of the tweet. 'null' stands for mentions, while retweets and replies are given with their specific words
+     * @param hasRetweets States if the picked theme has or has not retweets
+     * @return A map that contains the tweets/hashtags/terms as keys and the number of their occurrences as values
+     * @throws IOException 
+     */
     public static Map<String, Integer> collectTweetsHashtagsTerms(int choice, String theme, String tf, GraphDatabaseService graphDB, LuceneRetriever lucR, String type, boolean hasRetweets) throws IOException {
         
         //String neoPath = FilePaths.DEFAULT_ROOT_PATH+FilePaths.DATA_PARENT_FOLDER+FilePaths.DBs_FOLDER+ theme +FilePaths.NEO_FOLDER;
@@ -317,6 +329,15 @@ public class FileBuilder {
         return resultsMap;
     }   
      
+    /**
+     * This method creates, builds and stores the communities GEXF file that will be used for visualizing the communities social graphs.
+     * @param users A list with the communities users
+     * @param cluster The community
+     * @param theme The picked theme
+     * @param tf The timeframe in which we want to examine the community
+     * @return True if the file was successfully created, false otherwise
+     * @throws IOException 
+     */
     public boolean buildCommGEXF(List<Node> users, Cluster cluster, String theme, String tf) throws IOException {
    //     GraphBuilder gb = new GraphBuilder();
         String gexfPath = FilePaths.DEFAULT_ROOT_PATH+FilePaths.DATA_PARENT_FOLDER+FilePaths.METAFILES_FOLDER+ theme +FilePaths.GEXF_FOLDER;
@@ -461,6 +482,11 @@ public class FileBuilder {
         return true;
     }
     
+    /**
+     * Returns the hexadecimal number for a given color
+     * @param colorStr The given color
+     * @return The hexadecimal number of the color
+     */
     public Color hex2Rgb(String colorStr) {
     return new Color(
             Integer.valueOf( colorStr.substring( 0, 2 ), 16 ),
@@ -468,6 +494,21 @@ public class FileBuilder {
             Integer.valueOf( colorStr.substring( 4, 6 ), 16 ) );
     }
     
+    /**
+     * This method creates a GEXF for all the communities that exist in a given timeframe.
+     * @param clustAss A map containing the clusters in the given timeframe
+     * @param clustAssUserNames A map containing the users in the given timeframe
+     * @param hubs A set containing the hubs
+     * @param outliers A set containing the outliers
+     * @param theme The picked theme
+     * @param entirePath An auxiliary variable for the file path
+     * @param tf The given timeframe
+     * @param hasMentions Boolean variable of mentions
+     * @param hasRetweets Boolean variable of retweets
+     * @param hasReplies Boolean variable of replies
+     * @return True if the file was successfully created, false otherwise
+     * @throws IOException 
+     */
     public boolean buildTFGEXF(Map<Long, Long> clustAss, Map<Long, String> clustAssUserNames, Set<Long> hubs, Set<Long> outliers, String theme, String entirePath, String tf, boolean hasMentions, boolean hasRetweets, boolean hasReplies) throws IOException {
   
         Map<Long,Integer> usersMap = new HashMap<Long,Integer>();
@@ -665,6 +706,15 @@ public class FileBuilder {
         return true;
     }
     
+    /**
+     * This method handles the split of a community into others. It basically searches the entire file of the community evolution
+     * and finds the evolution of a single community after a split (and supplementary, the evolution of the communities that the
+     * primary community had been split to). The evolution is stored in the first parameter.
+     * @param comEvolListCurrent The evolution of the current community
+     * @param comEvolListAll The evolution of all the communities
+     * @param splitID The ID of the community that has been split
+     * @return True if the process has been successful, false otherwise
+     */
     public boolean handleSplit(List<String> comEvolListCurrent, ArrayList comEvolListAll, String splitID) {
         List<String> temp = new ArrayList<String>();
         int pointer = 0;
@@ -702,6 +752,14 @@ public class FileBuilder {
         return true;
     }
     
+    /**
+     * This method handles the merge of two or more communities into one. Specifically, it tracks the evolution of the communities that have been merged
+     * and the evolution of the communities that has been generated and stores that in the 'ob' variable.
+     * @param ob A list containing the evolution of the merged communities
+     * @param comEvolListAll The evolution of all the communities
+     * @param mergeID The ID of the communities that had been merged into
+     * @return True if the process has been successful, false otherwise
+     */
     public boolean handleMerge(List<Object> ob, ArrayList comEvolListAll, String mergeID) {
         int i;
         int j;
@@ -722,6 +780,12 @@ public class FileBuilder {
         return true;
     }
     
+    /**
+     * Checks whether an edge is contained into the list 'ob'
+     * @param eA The edge to be checked
+     * @param ob The list containing the edges
+     * @return True if the process has been successful, false otherwise
+     */
     public boolean containsThis(edgesArray eA, List<Object> ob) {
         String s;
         String d;
@@ -738,6 +802,13 @@ public class FileBuilder {
         return false;
     }
     
+    /**
+     * Find and returns the level of a cluster
+     * @param source The source to begin from
+     * @param groupList A list with the clusters to be checked
+     * @param size The size of the list (TOBEREMOVED)
+     * @return The level of the cluster
+     */
     public String getLevelNumber(String source, String[][] groupList, int size) {
         int i = 0;
         for(i=0;i<size;i++) {
@@ -748,6 +819,13 @@ public class FileBuilder {
         return null;
     }
     
+    /**
+     * Calculates and stores the level of a tree.
+     * @param levelList A list with the tree levels
+     * @param clusterTemp An auxiliary list with clusters 
+     * @param ob A list with objects
+     * @return True if the process succeeds, false otherwise
+     */
     public boolean calculateTreeLevel(String[][] levelList, List<String> clusterTemp, List<Object> ob) {
         int j;
         boolean found = false;
@@ -798,6 +876,12 @@ public class FileBuilder {
         }
     }
     
+    /**
+     * Determines whether a string is a number or not.
+     * @param s The string to be checked
+     * @return True if the string is a number, false otherwise
+     * @throws NumberFormatException 
+     */
     public boolean isNumber(String s) throws NumberFormatException {
         //Try to parse the string
         try {
@@ -811,6 +895,11 @@ public class FileBuilder {
         return true;
     }
     
+    /**
+     * This method gets a number and returns its corresponding color in red-to-green palette.
+     * @param power The number for which the method will generate the color
+     * @return A hexadecimal string (the color)
+     */
     public String generateRedToGreenColorPalete(double power) {
         double H = power * 0.4; // Hue (note 0.4 = Green)
         double S = 0.9; // Saturation
@@ -827,6 +916,12 @@ public class FileBuilder {
         return hex;
     } 
     
+    /**
+     * This method outputs the longest chains (longest evolution of communities).
+     * @param out A file handler
+     * @param greatestChains An array that contains the longest chains
+     * @throws IOException 
+     */
     public void outputLongestChains(PrintWriter out, ArrayList<ArrayList<Integer>> greatestChains) throws IOException {
         
         int[][] gC = new int[greatestChains.size()][2];
@@ -856,6 +951,17 @@ public class FileBuilder {
         }
     }
     
+    /**
+     * Builds the community evolution JSON that will be used by the external application.
+     * @param comEvolList
+     * @param comEvolTabs
+     * @param theme
+     * @param comEvolListAll
+     * @param firstTF
+     * @param timeframeOfCom
+     * @return
+     * @throws IOException 
+     */
     public boolean buildEvolJSON(ArrayList comEvolList, List<Integer> comEvolTabs, String theme, ArrayList comEvolListAll, String firstTF, Map<Integer,Integer> timeframeOfCom) throws IOException {
         List<String> temp = new ArrayList<String>();
         String clusterName = null;
