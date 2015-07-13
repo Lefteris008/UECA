@@ -959,7 +959,7 @@ public class FileBuilder {
      * @param comEvolListAll
      * @param firstTF
      * @param timeframeOfCom
-     * @return
+     * @return True if the process succeeds, false otherwise
      * @throws IOException 
      */
     public boolean buildEvolJSON(ArrayList comEvolList, List<Integer> comEvolTabs, String theme, ArrayList comEvolListAll, String firstTF, Map<Integer,Integer> timeframeOfCom) throws IOException {
@@ -1551,6 +1551,13 @@ public class FileBuilder {
         return true;
     }
     
+    /**
+     * This method normalizes all decimal results to 0.001 - 0.99 range.
+     * @param result The number to be normalized
+     * @param lowerBound The lowest number of the group the 'result' belongs
+     * @param upperBound The greatest number of the group the 'result' belongs
+     * @return A number between 0.01 and 0.99 range
+     */
     public double normalizeResult(double result, double lowerBound, double upperBound) {
         
         double finalResult;
@@ -1568,7 +1575,21 @@ public class FileBuilder {
         return finalResult;
     }
     
-    public void getMaxMinValues(int choice, double[] bound, long tfs[], statistics.GeneralStatistics gStat, db.lucene.LuceneRetriever lc, String theme) throws FileNotFoundException, IOException, UnknownHostException, ParseException {
+    /**
+     * Finds the maximum and minimum values of a group of numbers
+     * @param choice A number between 2-6 that denotes the group of numbers. Specifically, 2 denotes the number of users per timeframe,
+     * 3 the standard size of communities per timeframe, 4 the mean size of communities per timeframe, 5 the total communities in a timeframe
+     * and 6 the percentage of users in a timeframe
+     * @param bound A double array with the minimum and the maximum values of the group
+     * @param tfs A long array with the timeframes 
+     * @param gStat A GeneralStatics object with useful methods for extracting data
+     * @param lc A LuceneRetriever object
+     * @throws FileNotFoundException
+     * @throws IOException
+     * @throws UnknownHostException
+     * @throws ParseException 
+     */
+    public void getMaxMinValues(int choice, double[] bound, long[] tfs, statistics.GeneralStatistics gStat, db.lucene.LuceneRetriever lc) throws FileNotFoundException, IOException, UnknownHostException, ParseException {
         
         double[] resultsForSort = new double[tfs.length];
         int i;
@@ -1634,6 +1655,13 @@ public class FileBuilder {
         }
     }
     
+    /**
+     * Finds and transforms a timeframe into its corresponding date format
+     * @param timeframe The timeframe to be transformed
+     * @param theme The theme of the dataset 
+     * @return The Date that corresponds to the timeframe
+     * @throws IOException 
+     */
     public Date[] calculateDateStream(int timeframe, String theme) throws IOException {
         
         //Open TIMESTEP_INDEX file
@@ -1695,6 +1723,11 @@ public class FileBuilder {
         }
     }
     
+    /**
+     * Auxiliary method that copies a file in Unix environment
+     * @param source The file to be copied
+     * @param destination The destination folder to be copied to
+     */
     public static void copyFile(File source, File destination) {
         InputStream inStream = null;
         OutputStream outStream = null;
@@ -1720,7 +1753,28 @@ public class FileBuilder {
             e.printStackTrace();
         }
     }
-    //Build JSON file for EventWheel visualization
+    
+    /**
+     * This method builds the JSON file for the EventWheel visualization.
+     * @param tfEarly The earliest timeframe (inner circle)
+     * @param tfLate The latest timeframe (outer circle)
+     * @param themeA The theme of the first dataset
+     * @param themeB The theme of the second dataset
+     * @param nameA The name of the first dataset
+     * @param nameB The name of the second dataset
+     * @param hasLeft A boolean parameter that denotes if the user wishes to draw the full EventWheel or not
+     * @param nameOfEventWheel The name of the EventWheel. It will be placed on top of the chart
+     * @param hasMentionsA A boolean parameter that denotes if the first dataset has mentions
+     * @param hasRetweetsA A boolean parameter that denotes if the first dataset has retweets
+     * @param hasRepliesA A boolean parameter that denotes if the first dataset has replies
+     * @param hasMentionsB A boolean parameter that denotes if the second dataset has mentions
+     * @param hasRetweetsB A boolean parameter that denotes if the second dataset has retweets
+     * @param hasRepliesB A boolean parameter that denotes if the second dataset has replies
+     * @return True if the process succeeds, false otherwise
+     * @throws FileNotFoundException
+     * @throws IOException
+     * @throws ParseException 
+     */
     public boolean buildEventWheelJSON(String tfEarly, String tfLate, String themeA, String themeB, String nameA, String nameB, boolean hasLeft, String nameOfEventWheel, boolean hasMentionsA, boolean hasRetweetsA, boolean hasRepliesA, boolean hasMentionsB, boolean hasRetweetsB, boolean hasRepliesB) throws FileNotFoundException, IOException, ParseException {
         
         FileInputStream fstream;
@@ -1919,7 +1973,7 @@ public class FileBuilder {
                 //Number of Users
 
                 //Find quantity max/min values
-                this.getMaxMinValues(2, bound, tfs, gStat, null, theme);
+                this.getMaxMinValues(2, bound, tfs, gStat, null);
                 
                 //Store legend values
                 legendValues[1+j*6][0] = bound[0];
@@ -1947,7 +2001,7 @@ public class FileBuilder {
                 //Standard of Mean Size of Communities
 
                 //Find quantity max/min values
-                this.getMaxMinValues(3, bound, tfs, gStat, null, theme);
+                this.getMaxMinValues(3, bound, tfs, gStat, null);
                 
                 //Store legend values
                 legendValues[2+j*6][0] = bound[0];
@@ -1975,7 +2029,7 @@ public class FileBuilder {
                 //Mean Size of Communities
 
                 //Find quantity max/min values
-                this.getMaxMinValues(4, bound, tfs, gStat, null, theme);
+                this.getMaxMinValues(4, bound, tfs, gStat, null);
                 
                 //Store legend values
                 legendValues[3+j*6][0] = bound[0];
@@ -2003,7 +2057,7 @@ public class FileBuilder {
                 //Num of Communities
 
                 //Find quantity max/min values
-                this.getMaxMinValues(5, bound, tfs, gStat, null, theme);
+                this.getMaxMinValues(5, bound, tfs, gStat, null);
                 
                 //Store legend values
                 legendValues[4+j*6][0] = bound[0];
@@ -2034,7 +2088,7 @@ public class FileBuilder {
                 //Percentage of Users in Communities
 
                 //Find max/min values of quantity
-                this.getMaxMinValues(6, bound, tfs, gStat, lucR, theme);
+                this.getMaxMinValues(6, bound, tfs, gStat, lucR);
                 
                 //Store legend values
                 legendValues[5+j*6][0] = bound[0];
@@ -2134,6 +2188,16 @@ public class FileBuilder {
         return true;
     }
     
+    /**
+     * This method builds the JSON file of the TagCloud charts.
+     * @param theme The theme of the dataset
+     * @param timeframe The timeframe in which the chart is going to be drawn
+     * @param hasMentions Boolean parameter that denotes if the user/dataset wants/has mentions (NOTUSEDYET)
+     * @param hasRetweets Boolean parameter that denotes if the user/dataset wants/has retweets (NOTUSEDYET)
+     * @param hasReplies Boolean parameter that denotes if the user/dataset wants/has repliess (NOTUSEDYET)
+     * @return True if the process succeeds, false otherwise
+     * @throws IOException 
+     */
     public boolean buildTagCloudJSON(String theme, int timeframe, boolean hasMentions, boolean hasRetweets, boolean hasReplies) throws IOException {
         
         String entirePath = FilePaths.DEFAULT_ROOT_PATH+FilePaths.DATA_PARENT_FOLDER+FilePaths.METAFILES_FOLDER+ theme +FilePaths.ENTIRE_FOLDER;
@@ -2235,6 +2299,11 @@ public class FileBuilder {
         return true;
     }
     
+    /**
+     * Auxiliary method that sorts a Map by the key value.
+     * @param map The map to be sorted
+     * @return The sorted map
+     */
     public static Map<Integer, Integer> sortByKey(Map<Integer, Integer> map) {
         List<Map.Entry<Integer, Integer>> list = new LinkedList<Map.Entry<Integer, Integer>>(map.entrySet());
 
@@ -2252,6 +2321,11 @@ public class FileBuilder {
         return result;
     }
     
+    /**
+     * Auxiliary method that sorts a Map by value.
+     * @param map The map to be sorted
+     * @return The sorted map
+     */
     public static Map<String, Integer> sortByValue(Map<String, Integer> map) {
         List<Map.Entry<String, Integer>> list = new LinkedList<Map.Entry<String, Integer>>(map.entrySet());
 
@@ -2269,6 +2343,14 @@ public class FileBuilder {
         return result;
     }
     
+    /**
+     * Auxiliary method that calculates useful quantities for the pie chart.
+     * @param relation The relation (mention/retweet/reply) to be checked
+     * @param lucR A LuceneRetriever object
+     * @param timeframesRange The timeframe range in which the chart is going to be drawn
+     * @return The quantity of the pie chart
+     * @throws IOException 
+     */
     public static int calculatePie(db.neo.properties.RelTypes relation, LuceneRetriever lucR, List<String> timeframesRange) throws IOException {
         
         int i;
@@ -2279,6 +2361,17 @@ public class FileBuilder {
         return count;
     }
     
+    /**
+     * This method builds the CSVs used for the statistic charts.
+     * @param choice The chart to be drawn. 1 denotes the timeline of tweets, 2 the histogram of tweets, 3 the size of communities histogram and 4
+     * the mentions/retweets/replies pie
+     * @param theme The theme of the dataset
+     * @param hasMentions A boolean parameter that denotes if the user/dataset wants/has mentions (NOTUSEDYET)
+     * @param hasRetweets A boolean parameter that denotes if the user/dataset wants/has retweets (NOTUSEDYET)
+     * @param hasReplies A boolean parameter that denotes if the user/dataset wants/has repliess (NOTUSEDYET)
+     * @return True if the process succeeds, false otherwise
+     * @throws IOException 
+     */
     public static boolean buildStatistics(int choice, String theme, boolean hasMentions, boolean hasRetweets, boolean hasReplies) throws IOException {
         
         if(choice == 1) {
