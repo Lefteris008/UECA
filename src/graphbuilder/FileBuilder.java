@@ -56,7 +56,7 @@ import statistics.GeneralStatistics;
 /**
  * 
  * @author  Paraskevas Eleftherios
- * @version 2015.7.2_1836
+ * @version 2015.07.13_1404
  */
 public class FileBuilder {
     

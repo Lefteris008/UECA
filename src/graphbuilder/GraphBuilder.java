@@ -37,9 +37,18 @@ import org.neo4j.index.lucene.QueryContext;
 import entities.Cluster;
 import db.neo.clusters.ClusterProperties;
 
-
+/**
+ * 
+ * @author  Paraskevas Eleftherios
+ * @version 2015.07.13_1405
+ */
 public class GraphBuilder {
     
+    /**
+     * This method replaces the underscores of string with white space.
+     * @param str The string to be transformed
+     * @return The transformed string
+     */
     public static String trimUnderscores(String str) {
         char[] str_c = str.toCharArray();
         char[] str_new = new char[19];
@@ -68,6 +77,12 @@ public class GraphBuilder {
         return str_result;
     }
     
+    /**
+     * Auxiliary method that creates all needed metafiles in metafiles directory
+     * @param theme The theme of the dataset
+     * @return True if the process succeeds, false otherwise
+     * @throws IOException 
+     */
     public boolean generateTFListMetafiles(String theme) throws IOException {
         
         String filename = FilePaths.DEFAULT_ROOT_PATH+FilePaths.DATA_PARENT_FOLDER+FilePaths.METAFILES_FOLDER+ theme;
@@ -111,6 +126,12 @@ public class GraphBuilder {
         }
     }
     
+    /**
+     * 
+     * @param theme
+     * @param tf
+     * @return 
+     */
     public static String getTimeFrameDate(String theme, String tf) {
         
         String timestepPath = FilePaths.DEFAULT_ROOT_PATH+FilePaths.DATA_PARENT_FOLDER+FilePaths.DBs_FOLDER+ theme +FilePaths.TIMESTEP_INDEX_FILE;

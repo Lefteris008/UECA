@@ -1,10 +1,10 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package graphbuilder;
 
-
+/**
+ * 
+ * @author  Paraskevas Eleftherios
+ * @version 2015.07.13_1404
+ */
 public class FilePaths {
     
     // Root folders
